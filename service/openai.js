@@ -12,7 +12,8 @@ router.all('/openai', async ({ query: { string, user } }, response) => {
   clearTimeout(timeouts[user]); // 取消之前的超时计时器
 
   if (string === '/new' || string === '/新问题') {
-    localStorage.setItem(user, JSON.stringify({ messages: [] }))
+    // localStorage.setItem(user, JSON.stringify({ messages: [] }))
+    localStorage.removeItem(user)
     // 返回一个说明消息
     return response.send({
       choices: [{ message: { content: '🆕我已经忘记之前的对话了，你可以开始问新的问题了。' } }]
@@ -60,7 +61,8 @@ router.all('/openai', async ({ query: { string, user } }, response) => {
 
     // 设置超时计时器，1个小时后清空该用户的 messages
     timeouts[user] = setTimeout(() => {
-      localStorage.setItem(user, JSON.stringify({ messages: [] }))
+      // localStorage.setItem(user, JSON.stringify({ messages: [] }))
+      localStorage.removeItem(user)
     }, TIMEOUT_IN_MS)
   } catch (error) {
     if ([429, 401].includes(error?.response?.status)) {
