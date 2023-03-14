@@ -6,6 +6,15 @@ const { openAIKey } = require('../config')
 const { Configuration, OpenAIApi } = require('openai')
 
 router.all('/openai', async ({ query: { string, user } }, response) => {
+  if (string === '/new' || string === '/新问题' ) {
+    // 如果 string 的内容为 /clear 或 /清除，则清空该用户的 messages
+    localStorage.setItem(user, JSON.stringify({ messages: [] }))
+    // 返回一个说明消息
+    return response.send({
+      choices: [{ message: { content: '🆕我已经忘记之前的对话了，你可以开始问新的问题了。' } }]
+    })
+  }
+
   let keychain = openAIKey.split(',')
   let apiKey = ''
 
@@ -63,5 +72,4 @@ router.all('/openai', async ({ query: { string, user } }, response) => {
     }
   }
 })
-
 module.exports = router
