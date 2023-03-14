@@ -30,7 +30,7 @@ router.all('/openai', async ({ query: { string, user } }, response) => {
   }
 
   // 获取该用户的聊天记录数组，如果不存在则新建一个空数组
-  let messages = {JSON.parse('{}')}
+  let messages = JSON.parse('{}')
   let new_question = true
   if (localStorage[user]) {
     messages = JSON.parse(localStorage[user])
