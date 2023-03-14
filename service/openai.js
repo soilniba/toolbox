@@ -30,8 +30,11 @@ router.all('/openai', async ({ query: { string, user } }, response) => {
   }
 
   // 获取该用户的聊天记录数组，如果不存在则新建一个空数组
-  const { messages = [] } = JSON.parse(localStorage[user] || '[]')
-  let new_question = !!localStorage[user];
+  const { messages = [] } = JSON.parse(localStorage[user] || '{}')
+  let new_question = true
+  if (localStorage[user]) {
+    new_question = false
+  }
 
   messages.push({ role: 'user', content: string })
   try {
@@ -49,7 +52,7 @@ router.all('/openai', async ({ query: { string, user } }, response) => {
     localStorage.setItem(user, JSON.stringify({ messages }))
 
     if (new_question) {
-      completion.data.choices[0].message.content = '🆕这是一个新问题的开始：(闲置超过一小时或使用过/new指令)\n\n' + completion.data.choices[0].message.content
+      completion.data.choices[0].message.content = '🆕这是一个新问题的开始(已闲置超过一小时或刚使用过/new指令)：\n\n' + completion.data.choices[0].message.content
     }
     response.send({
       choices: completion.data.choices
