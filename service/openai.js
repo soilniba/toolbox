@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const localStorage = require('localStorage')
 
-const { openAIKey } = require('../config')
+const { openAIKey, OPENAI_API_URL } = require('../config')
 const { Configuration, OpenAIApi } = require('openai')
 
 router.all('/openai', async ({ query: { string } }, response) => {
