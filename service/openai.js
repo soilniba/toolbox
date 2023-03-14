@@ -53,7 +53,7 @@ router.all('/openai', async ({ query: { string, user } }, response) => {
     localStorage.setItem(user, JSON.stringify({ messages }))
 
     if (new_question) {
-      completion.data.choices[0].message = '🆕这是一个新问题的开始：\n(使用/new或/新问题或一小时)\n' + completion.data.choices[0].message
+      completion.data.choices[0].message.push('🆕这是一个新问题的开始：\n(使用/new或/新问题或一小时)\n')
     }
     response.send({
       choices: completion.data.choices
