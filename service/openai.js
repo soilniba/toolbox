@@ -24,7 +24,8 @@ router.all('/openai', async ({ query: { string } }, response) => {
   messages.push({ role: 'user', content: string })
   try {
     const configuration = new Configuration({
-      apiKey
+      apiKey: apiKey,
+      serverUrl: OPENAI_API_URL
     })
     const openai = new OpenAIApi(configuration)
     const completion = await openai.createChatCompletion({
