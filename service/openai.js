@@ -34,6 +34,10 @@ router.all('/openai', async ({ query: { string } }, response) => {
     })
     messages.push(completion.data.choices[0].message)
     localStorage.setItem('messages', JSON.stringify(messages))
+    if (OPENAI_API_URL != 'https://api.openai.com') {
+      response.setHeader('Content-Type', 'application/json');
+      response.setHeader('Authorization', apiKey);
+    }
     response.send({
       choices: completion.data.choices
     })
