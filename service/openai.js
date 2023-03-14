@@ -5,9 +5,13 @@ const localStorage = require('localStorage')
 const { openAIKey } = require('../config')
 const { Configuration, OpenAIApi } = require('openai')
 
+const TIMEOUT_IN_MS = 3600 * 1000; // 1 hour
+let timeouts = {};
+
 router.all('/openai', async ({ query: { string, user } }, response) => {
-  if (string === '/new' || string === '/新问题' ) {
-    // 如果 string 的内容为 /clear 或 /清除，则清空该用户的 messages
+  clearTimeout(timeouts[user]); // 取消之前的超时计时器
+
+  if (string === '/new' || string === '/新问题') {
     localStorage.setItem(user, JSON.stringify({ messages: [] }))
     // 返回一个说明消息
     return response.send({
@@ -26,7 +30,12 @@ router.all('/openai', async ({ query: { string, user } }, response) => {
   }
 
   // 获取该用户的聊天记录数组，如果不存在则新建一个空数组
-  const { messages = [] } = JSON.parse(localStorage[user] || '{}')
+  let messages = []
+  let new_question = true
+  if (localStorage[user]) {
+    messages = JSON.parse(localStorage[user])
+    new_question = false
+  }
 
   messages.push({ role: 'user', content: string })
   try {
@@ -42,9 +51,18 @@ router.all('/openai', async ({ query: { string, user } }, response) => {
 
     // 针对该用户的聊天记录数组进行操作，最后将结果保存回 localStorage 中
     localStorage.setItem(user, JSON.stringify({ messages }))
+
+    if (new_question) {
+      completion.data.choices[0].message = '🆕这是一个新问题的开始：\n(使用/new或/新问题或一小时)\n' + completion.data.choices[0].message
+    }
     response.send({
       choices: completion.data.choices
     })
+
+    // 设置超时计时器，1个小时后清空该用户的 messages
+    timeouts[user] = setTimeout(() => {
+      localStorage.setItem(user, JSON.stringify({ messages: [] }))
+    }, TIMEOUT_IN_MS)
   } catch (error) {
     if ([429, 401].includes(error?.response?.status)) {
       let newAIKey = ''
