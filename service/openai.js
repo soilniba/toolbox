@@ -5,10 +5,9 @@ const localStorage = require('localStorage')
 const { openAIKey } = require('../config')
 const { Configuration, OpenAIApi } = require('openai')
 
-router.all('/openai', async ({ query: { string } }, response) => {
+router.all('/openai', async ({ query: { string, user } }, response) => {
   let keychain = openAIKey.split(',')
   let apiKey = ''
-  let messages = []
 
   if (localStorage.openAIKey) {
     apiKey = localStorage.openAIKey
@@ -17,9 +16,8 @@ router.all('/openai', async ({ query: { string } }, response) => {
     localStorage.setItem('openAIKey', apiKey)
   }
 
-  if (localStorage.messages) {
-    messages = JSON.parse(localStorage.messages)
-  }
+  // 获取该用户的聊天记录数组，如果不存在则新建一个空数组
+  const { messages = [] } = JSON.parse(localStorage[user] || '{}')
 
   messages.push({ role: 'user', content: string })
   try {
@@ -32,7 +30,9 @@ router.all('/openai', async ({ query: { string } }, response) => {
       messages
     })
     messages.push(completion.data.choices[0].message)
-    localStorage.setItem('messages', JSON.stringify(messages))
+
+    // 针对该用户的聊天记录数组进行操作，最后将结果保存回 localStorage 中
+    localStorage.setItem(user, JSON.stringify({ messages }))
     response.send({
       choices: completion.data.choices
     })
