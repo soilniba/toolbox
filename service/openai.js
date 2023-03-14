@@ -53,17 +53,16 @@ router.all('/openai', async ({ query: { string, user } }, response) => {
     localStorage.setItem(user, JSON.stringify({ messages }))
 
     if (new_question) {
-      // completion.data.choices[0].message.push('🆕这是一个新问题的开始：\n(使用/new或/新问题或一小时)\n')
-      console.log('new_question')
+      completion.data.choices[0].message.content = '🆕这是一个新问题的开始：\n\n(使用/new或/新问题或闲置一小时)\n\n' + completion.data.choices[0].message.content
     }
-    console.log(JSON.stringify(completion.data.choices, null, 2))
     response.send({
       choices: completion.data.choices
     })
 
     // 设置超时计时器，1个小时后清空该用户的 messages
     timeouts[user] = setTimeout(() => {
-      localStorage.setItem(user, JSON.stringify({ messages: [] }))
+      let messages = []
+      localStorage.setItem(user, JSON.stringify({ messages }))
     }, TIMEOUT_IN_MS)
   } catch (error) {
     if ([429, 401].includes(error?.response?.status)) {
