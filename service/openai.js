@@ -52,17 +52,16 @@ router.all('/openai', async ({ query: { string, user } }, response) => {
     // 针对该用户的聊天记录数组进行操作，最后将结果保存回 localStorage 中
     localStorage.setItem(user, JSON.stringify({ messages }))
 
-    if (new_question) {
-      completion.data.choices[0].message.content = '🆕这是一个新问题的开始：\n(已闲置超过一小时或刚使用过/new指令)\n\n' + completion.data.choices[0].message.content
-    }
+    // if (new_question) {
+    //   completion.data.choices[0].message.content = '🆕这是一个新问题的开始：\n(已闲置超过一小时或刚使用过/new指令)\n\n' + completion.data.choices[0].message.content
+    // }
     response.send({
       choices: completion.data.choices
     })
 
     // 设置超时计时器，1个小时后清空该用户的 messages
     timeouts[user] = setTimeout(() => {
-      let messages = []
-      localStorage.setItem(user, JSON.stringify({ messages }))
+      localStorage.setItem(user, JSON.stringify({ messages: [] }))
     }, TIMEOUT_IN_MS)
   } catch (error) {
     if ([429, 401].includes(error?.response?.status)) {
