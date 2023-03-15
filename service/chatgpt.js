@@ -1,12 +1,7 @@
 const express = require('express')
 const localStorage = require('localStorage')
-const { openAIKey } = require('../config')
+const { openAIKey, OPENAI_API_URL } = require('../config')
 const router = express.Router()
-
-let api = (async () => {
-  const { ChatGPTAPI } = await import('chatgpt')
-  api = new ChatGPTAPI({ apiKey: openAIKey })
-})()
 
 const TIMEOUT_IN_MS = 3600 * 1000; // 1 hour
 let timeouts = {};
@@ -32,6 +27,14 @@ router.all('/chatgpt', async ({ query: { string, user } }, response) => {
     apiKey = keychain[0]
     localStorage.setItem('openAIKey', apiKey)
   }
+
+  let api = (async () => {
+    const { ChatGPTAPI } = await import('chatgpt')
+    api = new ChatGPTAPI({ 
+      apiKey: apiKey,
+      apiBaseUrl: (OPENAI_API_URL || 'https://api.openai.com'),
+    })
+  })()
 
   // 获取该用户的聊天记录数组，如果不存在则新建一个空数组
   const { messages = [] } = JSON.parse(localStorage[user] || '{}')
