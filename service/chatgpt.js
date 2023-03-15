@@ -32,7 +32,7 @@ router.all('/chatgpt', async ({ query: { string, user } }, response) => {
     const { ChatGPTAPI } = await import('chatgpt')
     api = new ChatGPTAPI({ 
       apiKey: apiKey,
-      apiBaseUrl: (OPENAI_API_URL || 'https://api.openai.com'),
+      // apiBaseUrl: (OPENAI_API_URL || 'https://api.openai.com'),
     })
   })()
 
