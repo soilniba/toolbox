@@ -14,7 +14,13 @@ async function createApiInstance(apiKey) {
   })
 }
 
-let api = createApiInstance(openAIKey.split(',')[0])
+let api = (async () => {
+  const { ChatGPTAPI } = await import('chatgpt')
+  api = new ChatGPTAPI({ 
+    apiKey: openAIKey.split(',')[0],
+    apiBaseUrl: (OPENAI_API_URL || 'https://api.openai.com'),
+  })
+})()
 
 router.all('/chatgpt', async ({ query: { string, user } }, response) => {
   clearTimeout(timeouts[user]); // 取消之前的超时计时器
