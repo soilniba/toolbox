@@ -55,7 +55,7 @@ router.all('/chatgpt', async ({ query: { string, user } }, response) => {
     localStorage.setItem(user, JSON.stringify({ messages }))
 
     if (new_question) {
-      res.text = '🆕这是一个新问题的开始(已闲置超过一小时或刚使用过/new指令)：\n' + res.text
+      res.text = '🆕这是一个新问题的开始(已闲置超过一小时或刚使用过/new指令)：\n\n' + res.text
     }
     response.send({ choices: [{ message: { content: res.text } }] })
     // 设置超时计时器，1个小时后清空该用户的 messages
