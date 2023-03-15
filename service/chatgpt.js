@@ -13,7 +13,7 @@ async function createApiInstance(apiKey) {
     apiBaseUrl: (OPENAI_API_URL || 'https://api.openai.com'),
   })
 }
-let api = createApiInstance(openAIKey.split(',')[0])
+let api = await createApiInstance(openAIKey.split(',')[0])
 
 router.all('/chatgpt', async ({ query: { string, user } }, response) => {
   clearTimeout(timeouts[user]); // 取消之前的超时计时器
