@@ -37,7 +37,7 @@ router.all('/chatgpt', async ({ query: { string, user } }, response) => {
     apiKey = keychain[0]
     localStorage.setItem('openAIKey', apiKey)
   }
-  api = await createApiInstance(newAIKey)
+  api = await createApiInstance(apiKey)
 
   // 获取该用户的聊天记录数组，如果不存在则新建一个空数组
   const { messages = [] } = JSON.parse(localStorage[user] || '{}')
