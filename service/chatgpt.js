@@ -9,7 +9,7 @@ let timeouts = {};
 let api = (async () => {
   const { ChatGPTAPI } = await import('chatgpt')
   api = new ChatGPTAPI({ 
-    apiKey: openAIKey,
+    apiKey: openAIKey.split(',')[0],
     apiBaseUrl: (OPENAI_API_URL || 'https://api.openai.com'),
   })
 })()
@@ -35,6 +35,8 @@ router.all('/chatgpt', async ({ query: { string, user } }, response) => {
     apiKey = keychain[0]
     localStorage.setItem('openAIKey', apiKey)
   }
+
+  api.updateApiKey(apiKey);
 
   // 获取该用户的聊天记录数组，如果不存在则新建一个空数组
   const { messages = [] } = JSON.parse(localStorage[user] || '{}')
