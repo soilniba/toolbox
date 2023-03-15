@@ -13,8 +13,8 @@ async function createApiInstance(apiKey) {
     apiBaseUrl: (OPENAI_API_URL || 'https://api.openai.com'),
   })
 }
-let api
-api = await createApiInstance(openAIKey.split(',')[0])
+
+let api = createApiInstance(openAIKey.split(',')[0])
 
 router.all('/chatgpt', async ({ query: { string, user } }, response) => {
   clearTimeout(timeouts[user]); // 取消之前的超时计时器
@@ -37,6 +37,7 @@ router.all('/chatgpt', async ({ query: { string, user } }, response) => {
     apiKey = keychain[0]
     localStorage.setItem('openAIKey', apiKey)
   }
+  // api = await createApiInstance(apiKey)
 
   // 获取该用户的聊天记录数组，如果不存在则新建一个空数组
   const { messages = [] } = JSON.parse(localStorage[user] || '{}')
