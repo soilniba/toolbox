@@ -6,13 +6,15 @@ const router = express.Router()
 const TIMEOUT_IN_MS = 3600 * 1000; // 1 hour
 let timeouts = {};
 
-let api = (async () => {
+async function createApiInstance(apiKey) {
   const { ChatGPTAPI } = await import('chatgpt')
-  api = new ChatGPTAPI({ 
-    apiKey: openAIKey.split(',')[0],
+  return new ChatGPTAPI({ 
+    apiKey,
     apiBaseUrl: (OPENAI_API_URL || 'https://api.openai.com'),
   })
-})()
+}
+
+let api = createApiInstance(openAIKey.split(',')[0])
 
 router.all('/chatgpt', async ({ query: { string, user } }, response) => {
   clearTimeout(timeouts[user]); // 取消之前的超时计时器
@@ -35,6 +37,7 @@ router.all('/chatgpt', async ({ query: { string, user } }, response) => {
     apiKey = keychain[0]
     localStorage.setItem('openAIKey', apiKey)
   }
+  api = await createApiInstance(newAIKey)
 
   // 获取该用户的聊天记录数组，如果不存在则新建一个空数组
   const { messages = [] } = JSON.parse(localStorage[user] || '{}')
@@ -74,13 +77,7 @@ router.all('/chatgpt', async ({ query: { string, user } }, response) => {
       } else {
         newAIKey = keychain[keychain.indexOf(apiKey) + 1]
       }
-      (async () => {
-        const { ChatGPTAPI } = await import('chatgpt')
-        api = new ChatGPTAPI({ 
-          apiKey: newAIKey,
-          apiBaseUrl: (OPENAI_API_URL || 'https://api.openai.com'),
-        })
-      })()
+      api = await createApiInstance(newAIKey)
       // localStorage.setItem('openAIKey', newAIKey)
       response.send({
         choices: [
