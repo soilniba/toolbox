@@ -36,8 +36,6 @@ router.all('/chatgpt', async ({ query: { string, user } }, response) => {
     localStorage.setItem('openAIKey', apiKey)
   }
 
-  api.updateApiKey(apiKey);
-
   // 获取该用户的聊天记录数组，如果不存在则新建一个空数组
   const { messages = [] } = JSON.parse(localStorage[user] || '{}')
   let new_question = true
@@ -76,7 +74,14 @@ router.all('/chatgpt', async ({ query: { string, user } }, response) => {
       } else {
         newAIKey = keychain[keychain.indexOf(apiKey) + 1]
       }
-      localStorage.setItem('openAIKey', newAIKey)
+      (async () => {
+        const { ChatGPTAPI } = await import('chatgpt')
+        api = new ChatGPTAPI({ 
+          apiKey: newAIKey,
+          apiBaseUrl: (OPENAI_API_URL || 'https://api.openai.com'),
+        })
+      })()
+      // localStorage.setItem('openAIKey', newAIKey)
       response.send({
         choices: [
           {
