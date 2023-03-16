@@ -93,6 +93,19 @@ router.all('/chatgpt', async ({ query: { string, user } }, response) => {
           }
         ]
       })
+    } else if ([400].includes(error?.response?.status)) {
+      localStorage.setItem('messages', JSON.stringify([]))
+      response.send({
+        choices: [
+          {
+            message: {
+              content: `${error.response.status} ${
+                error.response.statusText
+              } [已为您开启新的会话]`
+            }
+          }
+        ]
+      })
     } else {
       response.send({
         choices: [{ message: { content: JSON.stringify(error) } }]
