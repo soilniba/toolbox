@@ -26,8 +26,9 @@ router.all(
         xml: { FromUserName, Content, MsgType }
       } = await xml2js.parseStringPromise(message)
       console.log(`Received content：${Content}`)
+      const encodedContent = encodeURIComponent(Content);
       axios.get(
-        `${TOOLBOX_BASE_URL}/wecom/send?string=${Content}&user=${FromUserName[0]}&type=${MsgType}`
+        `${TOOLBOX_BASE_URL}/wecom/send?string=${encodedContent}&user=${FromUserName[0]}&type=${MsgType}`
       )
       response.send('')
     } catch (error) {

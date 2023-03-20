@@ -21,7 +21,8 @@ router.all('/wecom/send', async ({ query: { string, user, type } }, response) =>
       localStorage.setItem('access_token', access_token)
     }
     console.log(`Access Token: ${localStorage.access_token}`)
-    const { data } = await axios.get(`${TOOLBOX_BASE_URL}/openai?string=${string}`)
+    const encodedContent = encodeURIComponent(string);
+    const { data } = await axios.get(`${TOOLBOX_BASE_URL}/openai?string=${encodedContent}`)
     console.log(`Reply content: ${data.choices[0].message.content.trim()}`)
     const status = await axios.post(
       `${WECOM_BASE_URL}/cgi-bin/message/send?access_token=${localStorage.access_token}`,
@@ -37,7 +38,7 @@ router.all('/wecom/send', async ({ query: { string, user, type } }, response) =>
     console.log(`Send Status: ${JSON.stringify(status.data)}`)
     if ([40014,42201,42001].includes(status.data.errcode)) {
       localStorage.removeItem('access_token')
-      await axios.get(`${TOOLBOX_BASE_URL}/wecom/send?string=${string}&user=${user}&type=${type}`)
+      await axios.get(`${TOOLBOX_BASE_URL}/wecom/send?string=${encodedContent}&user=${user}&type=${type}`)
     }
     response.send('')
   } catch (error) {
